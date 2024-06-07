@@ -1,0 +1,10 @@
+spring:
+    application:
+        name: lhtgateway
+
+
+server:
+    port: 8888
+
+lhtregistry:
+    servers: http://localhost:8084

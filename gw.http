@@ -1,0 +1,29 @@
+### get hello
+GET http://localhost:8888/hello
+
+
+### get gw 1
+GET http://localhost:8888/gw
+
+
+
+### post userService
+POST http://localhost:8888/gw/com.lht.lhtrpc.demo.api.UserService
+Content-Type: application/json
+
+{
+  "service": "com.lht.lhtrpc.demo.api.UserService",
+  "methodSign": "findById@1_int",
+  "args": [200]
+}
+
+
+### post userService1
+POST http://192.168.3.55:8081/lhtrpc
+Content-Type: application/json
+
+{
+  "service": "com.lht.lhtrpc.demo.api.UserService",
+  "methodSign": "findById@1_int",
+  "args": [200]
+}
