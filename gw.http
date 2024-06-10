@@ -6,9 +6,13 @@ GET http://localhost:8888/hello
 GET http://localhost:8888/gw
 
 
+### get ga 1
+GET http://localhost:8888/ga/asda
+
+
 
 ### post userService
-POST http://localhost:8888/gw/com.lht.lhtrpc.demo.api.UserService
+POST http://localhost:8888/ga/com.lht.lhtrpc.demo.api.UserService?mock=111
 Content-Type: application/json
 
 {
