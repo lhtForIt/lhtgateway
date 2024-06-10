@@ -1,5 +1,7 @@
 package com.lht.gateway.web.handler;
 
+import com.lht.gateway.DefaultGatewayPluginChain;
+import com.lht.gateway.GatewayFilter;
 import com.lht.gateway.GatewayPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class GatewayWebHandler implements WebHandler {
     @Autowired
     List<GatewayPlugin> plugins;
 
+    @Autowired
+    List<GatewayFilter> filters;
+
 
 
     @Override
@@ -36,17 +41,23 @@ public class GatewayWebHandler implements WebHandler {
             return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(mock.getBytes())));
         }
 
-        for (GatewayPlugin plugin : plugins) {
-            if (plugin.support(exchange)) {
-                return plugin.handler(exchange);
-            }
+        for (GatewayFilter filter : filters) {
+            filter.filter(exchange);
         }
 
-        String mock= """
-                {"result":"no supported plugin"}
-                """;
+        return new DefaultGatewayPluginChain(plugins).handler(exchange);
 
-        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(mock.getBytes())));
+//        for (GatewayPlugin plugin : plugins) {
+//            if (plugin.support(exchange)) {
+//                return plugin.handler(exchange);
+//            }
+//        }
+//
+//        String mock= """
+//                {"result":"no supported plugin"}
+//                """;
+//
+//        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(mock.getBytes())));
 
     }
 }

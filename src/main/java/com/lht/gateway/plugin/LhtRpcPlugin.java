@@ -1,6 +1,7 @@
 package com.lht.gateway.plugin;
 
 import com.lht.gateway.AbstractGatewayPlugin;
+import com.lht.gateway.GatewayPluginChain;
 import com.lht.lhtrpc.core.api.LoadBalancer;
 import com.lht.lhtrpc.core.api.RegistryCenter;
 import com.lht.lhtrpc.core.cluster.RandomRibonLoadBalancer;
@@ -24,7 +25,7 @@ import java.util.List;
  * @date 2024/06/10
  */
 @Slf4j
-@Component
+@Component("lhtrpc")
 public class LhtRpcPlugin extends AbstractGatewayPlugin {
 
     public static final String NAME = "lhtrpc";
@@ -34,11 +35,12 @@ public class LhtRpcPlugin extends AbstractGatewayPlugin {
     LoadBalancer<InstanceMeta> loadBalancer = new RandomRibonLoadBalancer();
 
     @Override
-    public Mono<Void> doHandler(ServerWebExchange exchange) {
+    public Mono<Void> doHandler(ServerWebExchange exchange, GatewayPluginChain chain) {
 
         log.info("=======>>>>>>> [LhtRpcPlugin] ....");
         exchange.getResponse().getHeaders().add("Content-Type", "application/json");
         exchange.getResponse().getHeaders().add("lht.gw.version", "v1.0.0");
+        exchange.getResponse().getHeaders().add("lht.gw.plugin", getName());
         //1.通过请求路径获取服务名
         String service = exchange.getRequest().getPath().value().substring(prefix.length());
         ServiceMeta serviceMeta = ServiceMeta.builder().app("lht-app").namespace("public").env("dev").name(service).build();
@@ -51,12 +53,12 @@ public class LhtRpcPlugin extends AbstractGatewayPlugin {
 
         //4.拿到请求的body
         Flux<DataBuffer> requestBody = exchange.getRequest().getBody();
-        return getResponseFromRequest(exchange, url, requestBody);
+        return getResponseFromRequest(exchange, url, requestBody, chain);
 
     }
 
     @NotNull
-    public static Mono<Void> getResponseFromRequest(ServerWebExchange exchange, String url, Flux<DataBuffer> requestBody) {
+    public static Mono<Void> getResponseFromRequest(ServerWebExchange exchange, String url, Flux<DataBuffer> requestBody, GatewayPluginChain chain) {
         //5.通过webclient发送post请求
         WebClient webClient = WebClient.create(url);
         Mono<ResponseEntity<String>> entity = webClient.post()
@@ -68,7 +70,8 @@ public class LhtRpcPlugin extends AbstractGatewayPlugin {
 
 
         //7.组装响应报文
-        return body.flatMap(d -> exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(d.getBytes()))));
+        return body.flatMap(d -> exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(d.getBytes()))))
+                .then(chain.handler(exchange));
     }
 
     @Override

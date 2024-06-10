@@ -1,6 +1,7 @@
 package com.lht.gateway.plugin;
 
 import com.lht.gateway.AbstractGatewayPlugin;
+import com.lht.gateway.GatewayPluginChain;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -20,7 +21,7 @@ public class DirectPlugin extends AbstractGatewayPlugin {
     public static final String NAME = "direct";
 
     @Override
-    public Mono<Void> doHandler(ServerWebExchange exchange) {
+    public Mono<Void> doHandler(ServerWebExchange exchange, GatewayPluginChain chain) {
 
         log.info("=======>>>>>>> [DirectPlugin] ....");
         String backend = exchange.getRequest().getQueryParams().getFirst("backend");
@@ -28,12 +29,13 @@ public class DirectPlugin extends AbstractGatewayPlugin {
 
         exchange.getResponse().getHeaders().add("Content-Type", "application/json");
         exchange.getResponse().getHeaders().add("lht.gw.version", "v1.0.0");
+        exchange.getResponse().getHeaders().add("lht.gw.plugin", getName());
 
         if (StringUtils.isEmpty(backend)) {
-            return requestBody.flatMap(t -> exchange.getResponse().writeWith(Mono.just(t))).then();
+            return requestBody.flatMap(t -> exchange.getResponse().writeWith(Mono.just(t))).then(chain.handler(exchange));
         }
 
-        return LhtRpcPlugin.getResponseFromRequest(exchange, backend, requestBody);
+        return LhtRpcPlugin.getResponseFromRequest(exchange, backend, requestBody, chain);
 
     }
 

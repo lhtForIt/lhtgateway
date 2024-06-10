@@ -17,7 +17,7 @@ public class GatewayWebFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        log.debug("===>> lht gateway web filter ......");
+        log.info("===>> lht gateway web filter ......");
 
         if (exchange.getRequest().getQueryParams().getFirst("mock") == null) {
             return chain.filter(exchange);
