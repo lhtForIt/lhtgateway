@@ -11,8 +11,8 @@ GET http://localhost:8888/ga/asda
 
 
 
-### post userService
-POST http://localhost:8888/ga/com.lht.lhtrpc.demo.api.UserService?mock=111
+### post userService1
+POST http://localhost:8888/gw/lhtrpc/com.lht.lhtrpc.demo.api.UserService
 Content-Type: application/json
 
 {
@@ -21,6 +21,25 @@ Content-Type: application/json
   "args": [200]
 }
 
+### post userService2
+POST http://localhost:8888/gw/direct/com.lht.lhtrpc.demo.api.UserService
+Content-Type: application/json
+
+{
+  "service": "com.lht.lhtrpc.demo.api.UserService",
+  "methodSign": "findById@1_int",
+  "args": [200]
+}
+
+### post userService backend
+POST http://localhost:8888/gw/direct/com.lht.lhtrpc.demo.api.UserService?backend=http://localhost:8081/lhtrpc
+Content-Type: application/json
+
+{
+  "service": "com.lht.lhtrpc.demo.api.UserService",
+  "methodSign": "findById@1_int",
+  "args": [200]
+}
 
 ### post userService1
 POST http://192.168.3.55:8081/lhtrpc

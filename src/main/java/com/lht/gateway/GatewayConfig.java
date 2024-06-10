@@ -6,10 +6,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.Property;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 
 import java.util.Properties;
+
+import static com.lht.gateway.GatewayPlugin.GATEWAY_PREFIX;
 
 /**
  * @author Leo
@@ -29,7 +30,7 @@ public class GatewayConfig {
         return args -> {
             SimpleUrlHandlerMapping handlerMapping = applicationContext.getBean(SimpleUrlHandlerMapping.class);
             Properties mapping = new Properties();
-            mapping.put("/ga/**", "gatewayWebHandler");
+            mapping.put(GATEWAY_PREFIX + "/**", "gatewayWebHandler");
             handlerMapping.setMappings(mapping);
             handlerMapping.initApplicationContext();
             System.out.println("=========> lht gateway start.........");
